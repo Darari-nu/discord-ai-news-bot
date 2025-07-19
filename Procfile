@@ -1,0 +1,1 @@
+worker: python rss_discord_bot.py
