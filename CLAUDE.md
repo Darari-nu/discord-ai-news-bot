@@ -189,16 +189,89 @@ open terminal_log.md
 
 ---
 
+## 🚀 Railway デプロイ成功
+
+### 🎯 **デプロイ情報**
+- **Railway Project**: discord-ai-news-bot
+- **URL**: https://railway.com/project/5948cc3f-64ab-4a0d-a6e6-d38a5e7ff899
+- **Status**: ✅ 24時間稼働中
+- **実行間隔**: 60分（1時間毎）
+- **監視フィード数**: 32フィード
+
+---
+
+## 🐛 Railway CLI デプロイ問題解決記録
+
+### ❌ **遭遇したエラーと解決方法**
+
+#### 1. **環境変数設定問題**
+```bash
+# ❌ 間違い（CLI 4.5系では認識されない）
+export RAILWAY_API_TOKEN="xxxx"
+
+# ✅ 正解
+export RAILWAY_TOKEN="xxxx"
+```
+
+#### 2. **Bash subshell問題**
+```bash
+# ❌ 問題：毎回subshellで変数が消える
+railway whoami  # → Unauthorized
+
+# ✅ 解決：永続ファイルに設定
+mkdir -p ~/.railway
+echo '{"user":{"token":"xxxx"},"version":1}' > ~/.railway/config.json
+```
+
+#### 3. **CLI config.json スキーマ問題**
+```json
+// ❌ 動かないスキーマ
+{"token": "xxxx"}
+
+// ✅ CLI 4.5系が期待するスキーマ  
+{
+  "user": {
+    "token": "xxxx"
+  },
+  "version": 1
+}
+```
+
+#### 4. **認証エラーの根本原因**
+```bash
+# エラー: Unable to parse config file, regenerating
+# 原因: CLI 4.5系のスキーマ不一致
+# 解決: railway logout → 正しいスキーマで再設定
+```
+
+### ✅ **最終的な成功手順**
+1. `npm uninstall -g @railway/cli && npm i -g @railway/cli@latest`
+2. `railway logout || true` 
+3. 正しいスキーマでconfig.json作成
+4. `railway whoami` で認証確認
+5. `railway init --name discord-ai-news-bot`
+6. `railway up` でデプロイ成功
+
+### 🎯 **TDD検証項目**
+- [x] `jq '.user.token' ~/.railway/config.json` → UUID返却
+- [x] `railway whoami` → メールアドレス返却  
+- [x] `railway init` → プロジェクト作成成功
+- [x] `railway up` → デプロイ成功
+
+---
+
 ## 📅 更新履歴
 
 ### 2025-07-19
 - ✅ プロジェクト開始
 - ✅ 基本機能実装・テスト完了
-- ✅ AI法規制RSS 15フィード追加
+- ✅ AI法規制RSS 32フィード追加
 - ✅ ログ機能強化（Markdown対応）
 - ✅ 会話記録機能追加
 - ✅ Claude.md作成
+- ✅ Railway CLI認証問題解決
+- ✅ Railway デプロイ成功（24時間稼働開始）
 
 ---
 
-*最終更新: 2025-07-19 16:50*
+*最終更新: 2025-07-19 21:53*
