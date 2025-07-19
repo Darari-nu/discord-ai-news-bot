@@ -30,6 +30,22 @@ class RSSDiscordBot:
         self.setup_logging()
     
     def load_config(self, config_file: str) -> Dict:
+        # Railway環境では環境変数から設定を読み込む
+        if os.getenv('RAILWAY_ENVIRONMENT'):
+            webhook_url = os.getenv('DISCORD_WEBHOOK_URL')
+            if not webhook_url:
+                logging.error("DISCORD_WEBHOOK_URL environment variable not set")
+                raise ValueError("DISCORD_WEBHOOK_URL environment variable required")
+            
+            # Railway用の最小設定
+            return {
+                "discord_webhook_url": webhook_url,
+                "rss_feeds": self.get_default_rss_feeds(),
+                "check_interval_minutes": 60,
+                "max_articles_per_feed": 2
+            }
+        
+        # ローカル環境ではconfig.jsonを使用
         try:
             with open(config_file, 'r', encoding='utf-8') as f:
                 return json.load(f)
@@ -57,6 +73,42 @@ class RSSDiscordBot:
                 json.dump(list(self.seen_articles), f, ensure_ascii=False, indent=2)
         except Exception as e:
             logging.error(f"Failed to save seen articles: {e}")
+    
+    def get_default_rss_feeds(self) -> List[Dict]:
+        """Railway環境用のデフォルトRSSフィード設定"""
+        return [
+            {"name": "🚀 TechCrunch", "url": "https://techcrunch.com/feed/", "translate": True},
+            {"name": "🇺🇸 Washington Post Tech", "url": "https://feeds.washingtonpost.com/rss/business/technology", "translate": True},
+            {"name": "🇺🇸 Reuters (Google News)", "url": "https://news.google.com/rss/search?q=when:24h+allinurl:reuters.com&ceid=US:en&hl=en-US&gl=US", "translate": True},
+            {"name": "🇪🇺 EURACTIV", "url": "https://www.euractiv.com/feed/", "translate": True},
+            {"name": "🇪🇺 TechCrunch Europe", "url": "https://techcrunch.com/category/startups/europe/feed/", "translate": True},
+            {"name": "🇯🇵 ITmedia AI+", "url": "https://rss.itmedia.co.jp/rss/2.0/aiplus.xml"},
+            {"name": "🇯🇵 日経xTECH", "url": "https://xtech.nikkei.com/rss/index.rdf"},
+            {"name": "🧠 MIT Technology Review", "url": "https://www.technologyreview.com/feed/", "translate": True},
+            {"name": "🌐 VentureBeat AI", "url": "https://venturebeat.com/ai/feed/", "translate": True},
+            {"name": "🌐 OECD Digital", "url": "https://www.oecd.org/digital/rss.xml", "translate": True},
+            {"name": "🏛️ 内閣府", "url": "https://www.cao.go.jp/rss/index.xml"},
+            {"name": "🏛️ 総務省", "url": "https://www.soumu.go.jp/menu_news/rss/index.xml"},
+            {"name": "🏛️ 経産省", "url": "https://www.meti.go.jp/rss/index.rdf"},
+            {"name": "🏛️ デジタル庁", "url": "https://www.digital.go.jp/news/rss.xml"},
+            {"name": "🇯🇵 日本経済新聞 (Google News)", "url": "https://news.google.com/rss/search?q=site:nikkei.com&hl=ja&gl=JP&ceid=JP:ja"},
+            {"name": "🇺🇸 Bloomberg Tech", "url": "https://feeds.bloomberg.com/technology/news.rss", "translate": True},
+            {"name": "🇬🇧 BBC News – Technology", "url": "http://feeds.bbci.co.uk/news/technology/rss.xml", "translate": True},
+            {"name": "🇬🇧 The Guardian – Artificial Intelligence", "url": "https://www.theguardian.com/technology/artificialintelligenceai/rss", "translate": True},
+            {"name": "🇺🇸 WIRED – AI (Latest)", "url": "https://www.wired.com/feed/tag/ai/latest/rss", "translate": True},
+            {"name": "🇺🇸 The Verge – Artificial Intelligence", "url": "https://www.theverge.com/rss/ai-artificial-intelligence/index.xml", "translate": True},
+            {"name": "🇬🇧 The Register – AI/ML", "url": "https://www.theregister.com/software/ai_ml/headlines.atom", "translate": True},
+            {"name": "🌐 AI Business", "url": "https://aibusiness.com/rss.xml", "translate": True},
+            {"name": "🌐 Artificial Intelligence News", "url": "https://www.artificialintelligence-news.com/feed/rss/", "translate": True},
+            {"name": "🌐 SiliconANGLE – AI", "url": "https://siliconangle.com/category/ai/feed", "translate": True},
+            {"name": "🌐 TechRepublic – AI", "url": "https://www.techrepublic.com/rssfeeds/topic/artificial-intelligence/", "translate": True},
+            {"name": "🌐 Futurism – Artificial Intelligence", "url": "https://futurism.com/categories/ai-artificial-intelligence/feed", "translate": True},
+            {"name": "🔬 OpenAI News", "url": "https://openai.com/news/rss.xml", "translate": True},
+            {"name": "🔬 Google Research", "url": "https://research.google/blog/rss/", "translate": True},
+            {"name": "🔬 Meta AI", "url": "https://ai.meta.com/blog/rss/", "translate": True},
+            {"name": "📰 WSJ Tech", "url": "https://feeds.content.dowjones.io/public/rss/wsj/tech/feed", "translate": True},
+            {"name": "📚 arXiv AI Papers", "url": "http://export.arxiv.org/rss/cs.AI", "translate": True}
+        ]
     
     def setup_logging(self):
         logging.basicConfig(
