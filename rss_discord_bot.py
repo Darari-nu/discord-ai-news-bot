@@ -410,24 +410,26 @@ class RSSDiscordBot:
         self.process_feeds()
     
     def run_forever(self):
-        """Run the bot at XX:30 every hour"""
-        logging.info("Starting RSS Discord Bot with hourly schedule (XX:30)")
+        """Run the bot at XX:00 and XX:30 every 30 minutes"""
+        logging.info("Starting RSS Discord Bot with 30-minute schedule (XX:00, XX:30)")
         
         while True:
             try:
                 current_time = datetime.now()
                 current_minute = current_time.minute
                 
-                # XX:30の30分に実行
-                if current_minute == 30:
+                # XX:00またはXX:30の0分・30分に実行
+                if current_minute == 0 or current_minute == 30:
                     logging.info(f"Scheduled execution at {current_time.strftime('%H:%M')}")
                     self.process_feeds()
-                    time.sleep(3660)  # 61分待機（次の:30まで）
+                    time.sleep(1740)  # 29分待機（次の:00または:30まで）
                 else:
-                    minutes_to_wait = (30 - current_minute) % 60
-                    if minutes_to_wait == 0:
-                        minutes_to_wait = 60
-                    logging.info(f"Waiting {minutes_to_wait} minutes until next scheduled run (XX:30)")
+                    # 次の0分または30分まで待機
+                    if current_minute < 30:
+                        minutes_to_wait = 30 - current_minute
+                    else:
+                        minutes_to_wait = 60 - current_minute
+                    logging.info(f"Waiting {minutes_to_wait} minutes until next scheduled run (XX:00 or XX:30)")
                     time.sleep(minutes_to_wait * 60)
             
             except KeyboardInterrupt:
