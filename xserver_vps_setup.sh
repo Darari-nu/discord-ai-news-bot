@@ -1,3 +1,85 @@
+#!/bin/bash
+
+# Xserver VPS自動セットアップスクリプト
+# Discord RSS Bot のデプロイメント
+
+set -e
+
+# 色付き出力関数
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m' # No Color
+
+log_info() {
+    echo -e "${GREEN}[INFO]${NC} $1"
+}
+
+log_warn() {
+    echo -e "${YELLOW}[WARN]${NC} $1"
+}
+
+log_error() {
+    echo -e "${RED}[ERROR]${NC} $1"
+}
+
+# SSH接続情報
+VPS_IP="210.131.217.175"
+VPS_USER="root"
+VPS_PASSWORD="j-33008744444-"
+DISCORD_WEBHOOK="https://discord.com/api/webhooks/1396002981291229324/HZBDfa1QpEp1SgD9QA_iwEHYC5A_DWj8Z3lB5BsBxiC2D8Ex2eQjvNpJdkmr1iqRROur"
+
+log_info "=== Xserver VPS Discord RSS Bot セットアップ開始 ==="
+
+# SSH接続テスト
+log_info "SSH接続をテストしています..."
+if ! sshpass -p "$VPS_PASSWORD" ssh -o StrictHostKeyChecking=no -o ConnectTimeout=10 "$VPS_USER@$VPS_IP" "echo 'SSH接続成功'" 2>/dev/null; then
+    log_error "SSH接続に失敗しました。以下を確認してください："
+    echo "  - IPアドレス: $VPS_IP"
+    echo "  - ユーザー名: $VPS_USER"
+    echo "  - パスワード: $VPS_PASSWORD"
+    echo ""
+    echo "sshpassがインストールされていない場合："
+    echo "  macOS: brew install hudochenkov/sshpass/sshpass"
+    echo "  Ubuntu: sudo apt-get install sshpass"
+    exit 1
+fi
+
+log_info "SSH接続成功！セットアップを開始します..."
+
+# リモートセットアップスクリプトを作成
+cat > /tmp/remote_setup.sh << 'EOF'
+#!/bin/bash
+
+set -e
+
+echo "=== サーバー環境セットアップ開始 ==="
+
+# システム更新
+echo "システムを更新中..."
+if command -v apt-get &> /dev/null; then
+    apt-get update -y
+    apt-get upgrade -y
+    apt-get install -y python3 python3-pip python3-venv git curl
+elif command -v yum &> /dev/null; then
+    yum update -y
+    yum install -y python3 python3-pip git curl
+elif command -v dnf &> /dev/null; then
+    dnf update -y
+    dnf install -y python3 python3-pip git curl
+fi
+
+# Pythonバージョン確認
+python3 --version
+
+# 作業ディレクトリ作成
+cd /opt
+rm -rf discord-rss-bot
+mkdir -p discord-rss-bot
+cd discord-rss-bot
+
+# Discord RSS Botコードを作成
+cat > rss_discord_bot.py << 'PYTHON_EOF'
 #!/usr/bin/env python3
 import json
 import time
@@ -30,10 +112,9 @@ class RSSDiscordBot:
         self.setup_logging()
     
     def load_config(self, config_file: str) -> Dict:
-        # 環境変数から設定を読み込む（VPS/Railway環境）
+        # 環境変数から設定を読み込む（VPS環境）
         webhook_url = os.getenv('DISCORD_WEBHOOK_URL')
         if webhook_url:
-            # VPS/Railway用の最小設定
             return {
                 "discord_webhook_url": webhook_url,
                 "rss_feeds": self.get_default_rss_feeds(),
@@ -41,12 +122,12 @@ class RSSDiscordBot:
                 "max_articles_per_feed": 2
             }
         
-        # ローカル環境ではconfig.jsonを使用
+        # config.jsonを使用
         try:
             with open(config_file, 'r', encoding='utf-8') as f:
                 return json.load(f)
         except FileNotFoundError:
-            logging.error(f"Config file {config_file} not found")
+            logging.error(f"Config file {config_file} not found and no DISCORD_WEBHOOK_URL env var")
             raise
         except json.JSONDecodeError:
             logging.error(f"Invalid JSON in config file {config_file}")
@@ -71,7 +152,7 @@ class RSSDiscordBot:
             logging.error(f"Failed to save seen articles: {e}")
     
     def get_default_rss_feeds(self) -> List[Dict]:
-        """Railway環境用のデフォルトRSSフィード設定"""
+        """VPS環境用のデフォルトRSSフィード設定"""
         return [
             {"name": "🚀 TechCrunch", "url": "https://techcrunch.com/feed/", "translate": True},
             {"name": "🇺🇸 Washington Post Tech", "url": "https://feeds.washingtonpost.com/rss/business/technology", "translate": True},
@@ -116,17 +197,6 @@ class RSSDiscordBot:
             ]
         )
     
-    def log_to_markdown(self, message: str, log_type: str = "INFO"):
-        """ターミナル出力をMarkdownファイルに記録"""
-        try:
-            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            log_entry = f"## {timestamp} - {log_type}\n```\n{message}\n```\n\n"
-            
-            with open('terminal_log.md', 'a', encoding='utf-8') as f:
-                f.write(log_entry)
-        except Exception as e:
-            logging.error(f"Failed to log to markdown: {e}")
-    
     def get_article_id(self, article) -> str:
         """Generate unique ID for article based on title and link"""
         content = f"{article.get('title', '')}{article.get('link', '')}"
@@ -136,89 +206,52 @@ class RSSDiscordBot:
         """AI法規制関連度をスコア計算（2点以上で投稿対象）"""
         text = f"{title} {summary}".lower()
         score = 0
-        matched_keywords = []
         
         # AI技術関連キーワード（+2点）
         ai_tech_keywords = [
-            "artificial intelligence", "machine learning", "generative ai",
-            "large language model", "deep learning", "neural network",
             "ai", "人工知能", "生成ai", "機械学習", "chatgpt", "gpt", 
-            "llm", "大規模言語モデル", "ディープラーニング", "自動化"
+            "llm", "大規模言語モデル", "ディープラーニング", "自動化",
+            "artificial intelligence", "machine learning", "generative ai",
+            "large language model", "deep learning", "neural network"
         ]
         
-        # 法規制関連キーワード（+2点）- より具体的に
+        # 法規制関連キーワード（+2点）
         regulation_keywords = [
+            "規制", "法律", "法案", "政策", "ガイドライン", "倫理", 
+            "コンプライアンス", "ルール", "指針", "基準",
+            "悪用", "脆弱性", "セキュリティ", "リスク", "危険", "問題",
             "regulation", "law", "policy", "guideline", "compliance", 
             "ethics", "governance", "framework", "standard",
-            "規制", "法律", "法案", "政策", "ガイドライン", "倫理", 
-            "コンプライアンス", "ルール", "指針", "基準"
+            "misuse", "vulnerability", "security", "risk", "danger", "malware"
         ]
         
-        # セキュリティ・リスク関連（+2点）- 独立カテゴリに
-        security_keywords = [
-            "cybersecurity", "data breach", "privacy violation", "hacking",
-            "vulnerability", "security flaw", "malware", "cyber attack",
-            "悪用", "脆弱性", "セキュリティ", "サイバー攻撃", "マルウェア",
-            "個人情報", "プライバシー", "情報漏洩"
-        ]
-        
-        # 地域・機関名（+1点）- より具体的に
+        # 地域・機関名（+1点）
         region_keywords = [
-            "european union", "united states", "eu commission", "us government",
-            "nist", "ftc", "sec", "gdpr", "ai act", "白宮", "congress",
-            "総務省", "経産省", "デジタル庁", "内閣府", "政府", "省庁",
-            "欧州委員会", "米政府", "eu", "欧州", "ヨーロッパ", "アメリカ", "米国", "日本"
+            "eu", "欧州", "ヨーロッパ", "アメリカ", "米国", "日本", 
+            "総務省", "経産省", "デジタル庁", "gdpr", "ai act",
+            "european union", "united states", "nist", "ftc", "sec"
         ]
         
-        # より具体的なマッチング（部分マッチを避ける）
-        # AI技術キーワードチェック
+        # スコア計算
         for keyword in ai_tech_keywords:
-            if self._is_keyword_match(keyword, text):
+            if keyword in text:
                 score += 2
-                matched_keywords.append(f"AI:{keyword}")
                 break
                 
-        # 法規制キーワードチェック
         for keyword in regulation_keywords:
-            if self._is_keyword_match(keyword, text):
+            if keyword in text:
                 score += 2
-                matched_keywords.append(f"REG:{keyword}")
                 break
                 
-        # セキュリティキーワードチェック
-        for keyword in security_keywords:
-            if self._is_keyword_match(keyword, text):
-                score += 2
-                matched_keywords.append(f"SEC:{keyword}")
-                break
-                
-        # 地域キーワードチェック
         for keyword in region_keywords:
-            if self._is_keyword_match(keyword, text):
+            if keyword in text:
                 score += 1
-                matched_keywords.append(f"REGION:{keyword}")
                 break
-        
-        # デバッグ情報をログに出力
-        if matched_keywords:
-            logging.info(f"Matched keywords: {', '.join(matched_keywords)}")
         
         return score
     
-    def _is_keyword_match(self, keyword: str, text: str) -> bool:
-        """より精密なキーワードマッチング"""
-        import re
-        
-        # 短いキーワード（3文字以下）は単語境界を使用
-        if len(keyword) <= 3:
-            pattern = r'\b' + re.escape(keyword) + r'\b'
-            return bool(re.search(pattern, text, re.IGNORECASE))
-        
-        # 長いキーワードは通常の部分マッチ
-        return keyword.lower() in text.lower()
-    
     def is_ai_regulation_related(self, article: Dict) -> bool:
-        """AI法規制関連記事かどうか判定（スコア2点以上に緩和）"""
+        """AI法規制関連記事かどうか判定（スコア2点以上）"""
         score = self.calculate_ai_regulation_score(
             article.get('title', ''), 
             article.get('summary', '')
@@ -291,7 +324,6 @@ class RSSDiscordBot:
                     else:
                         score = self.calculate_ai_regulation_score(article['title'], article['summary'])
                         logging.info(f"Filtered out (score {score}): {article['title']}")
-                        self.log_to_markdown(f"🚫 Filtered article (score {score}): {article['title']}", "FILTER")
             
             return articles
         
@@ -371,17 +403,13 @@ class RSSDiscordBot:
         return message
     
     def process_feeds(self):
-        processing_start = f"Starting RSS feed processing at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
         logging.info("Starting RSS feed processing")
-        self.log_to_markdown(processing_start, "START")
         
         for feed_config in self.config['rss_feeds']:
             feed_name = feed_config['name']
             feed_url = feed_config['url']
             
-            feed_log = f"Processing feed: {feed_name}\nURL: {feed_url}"
             logging.info(f"Processing feed: {feed_name}")
-            self.log_to_markdown(feed_log, "FEED")
             
             articles = self.parse_rss_feed(feed_url)
             
@@ -390,45 +418,31 @@ class RSSDiscordBot:
                 
                 if self.send_to_discord(message):
                     self.seen_articles.add(article['id'])
-                    article_log = f"✅ Sent article from {feed_name}:\nTitle: {article['title']}\nLink: {article.get('link', 'No link')}"
                     logging.info(f"Sent article: {article['title']}")
-                    self.log_to_markdown(article_log, "ARTICLE")
                 else:
-                    error_log = f"❌ Failed to send article from {feed_name}:\nTitle: {article['title']}"
                     logging.error(f"Failed to send article: {article['title']}")
-                    self.log_to_markdown(error_log, "ERROR")
                 
                 time.sleep(1)  # Rate limiting
         
         self.save_seen_articles()
-        completion_log = f"RSS feed processing completed at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
         logging.info("RSS feed processing completed")
-        self.log_to_markdown(completion_log, "COMPLETE")
     
     def run_once(self):
         """Run the bot once"""
         self.process_feeds()
     
     def run_forever(self):
-        """Run the bot at XX:30 every hour"""
-        logging.info("Starting RSS Discord Bot with hourly schedule (XX:30)")
+        """Run the bot continuously with specified interval"""
+        interval_minutes = self.config.get('check_interval_minutes', 60)
+        interval_seconds = interval_minutes * 60
+        
+        logging.info(f"Starting RSS Discord Bot with {interval_minutes} minute intervals")
         
         while True:
             try:
-                current_time = datetime.now()
-                current_minute = current_time.minute
-                
-                # XX:30の30分に実行
-                if current_minute == 30:
-                    logging.info(f"Scheduled execution at {current_time.strftime('%H:%M')}")
-                    self.process_feeds()
-                    time.sleep(3660)  # 61分待機（次の:30まで）
-                else:
-                    minutes_to_wait = (30 - current_minute) % 60
-                    if minutes_to_wait == 0:
-                        minutes_to_wait = 60
-                    logging.info(f"Waiting {minutes_to_wait} minutes until next scheduled run (XX:30)")
-                    time.sleep(minutes_to_wait * 60)
+                self.process_feeds()
+                logging.info(f"Sleeping for {interval_minutes} minutes...")
+                time.sleep(interval_seconds)
             
             except KeyboardInterrupt:
                 logging.info("Bot stopped by user")
@@ -447,3 +461,72 @@ if __name__ == "__main__":
         bot.run_once()
     else:
         bot.run_forever()
+PYTHON_EOF
+
+# requirements.txtを作成
+cat > requirements.txt << 'REQ_EOF'
+feedparser==6.0.10
+requests==2.31.0
+REQ_EOF
+
+# 仮想環境を作成してパッケージをインストール
+echo "Python仮想環境を作成中..."
+python3 -m venv venv
+source venv/bin/activate
+pip install --upgrade pip
+pip install -r requirements.txt
+
+# systemdサービスファイルを作成
+cat > /etc/systemd/system/discord-rss-bot.service << 'SERVICE_EOF'
+[Unit]
+Description=Discord RSS Bot
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/discord-rss-bot
+Environment=DISCORD_WEBHOOK_URL=WEBHOOK_URL_PLACEHOLDER
+ExecStart=/opt/discord-rss-bot/venv/bin/python /opt/discord-rss-bot/rss_discord_bot.py
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
+SERVICE_EOF
+
+echo "セットアップ完了！"
+echo "Discord Webhook URLを設定してサービスを開始してください。"
+EOF
+
+# リモートサーバーにスクリプトをアップロードして実行
+log_info "リモートサーバーにセットアップスクリプトを転送中..."
+sshpass -p "$VPS_PASSWORD" scp -o StrictHostKeyChecking=no /tmp/remote_setup.sh "$VPS_USER@$VPS_IP:/tmp/"
+
+log_info "リモートサーバーでセットアップを実行中..."
+sshpass -p "$VPS_PASSWORD" ssh -o StrictHostKeyChecking=no "$VPS_USER@$VPS_IP" "chmod +x /tmp/remote_setup.sh && /tmp/remote_setup.sh"
+
+# Discord Webhook URLを設定
+log_info "Discord Webhook URLを設定中..."
+sshpass -p "$VPS_PASSWORD" ssh -o StrictHostKeyChecking=no "$VPS_USER@$VPS_IP" "sed -i 's|WEBHOOK_URL_PLACEHOLDER|$DISCORD_WEBHOOK|' /etc/systemd/system/discord-rss-bot.service"
+
+# systemdサービスを開始
+log_info "Discord RSS Botサービスを開始中..."
+sshpass -p "$VPS_PASSWORD" ssh -o StrictHostKeyChecking=no "$VPS_USER@$VPS_IP" "
+    systemctl daemon-reload
+    systemctl enable discord-rss-bot
+    systemctl start discord-rss-bot
+    systemctl status discord-rss-bot
+"
+
+log_info "=== セットアップ完了！ ==="
+echo ""
+echo "🎉 Discord RSS BotがXserver VPSで起動しました！"
+echo ""
+echo "📊 サービス管理コマンド："
+echo "  ステータス確認: ssh root@$VPS_IP 'systemctl status discord-rss-bot'"
+echo "  ログ確認:       ssh root@$VPS_IP 'journalctl -u discord-rss-bot -f'"
+echo "  サービス停止:   ssh root@$VPS_IP 'systemctl stop discord-rss-bot'"
+echo "  サービス開始:   ssh root@$VPS_IP 'systemctl start discord-rss-bot'"
+echo ""
+echo "🚀 ボットは60分間隔でAI法規制ニュースを監視・投稿します"
