@@ -65,6 +65,12 @@ class RSSDiscordBot:
     
     def save_seen_articles(self):
         try:
+            # バックアップ作成
+            backup_file = self.seen_articles_file.replace('.json', '_backup.json')
+            if os.path.exists(self.seen_articles_file):
+                import shutil
+                shutil.copy2(self.seen_articles_file, backup_file)
+            
             with open(self.seen_articles_file, 'w', encoding='utf-8') as f:
                 json.dump(list(self.seen_articles), f, ensure_ascii=False, indent=2)
         except Exception as e:
@@ -128,8 +134,9 @@ class RSSDiscordBot:
             logging.error(f"Failed to log to markdown: {e}")
     
     def get_article_id(self, article) -> str:
-        """Generate unique ID for article based on title and link"""
-        content = f"{article.get('title', '')}{article.get('link', '')}"
+        """Generate unique ID for article based on title, link, and published date"""
+        # より一意性を高めるため公開日時も含める
+        content = f"{article.get('title', '')}{article.get('link', '')}{article.get('published', '')}"
         return hashlib.md5(content.encode('utf-8')).hexdigest()
     
     def calculate_ai_regulation_score(self, title: str, summary: str = "") -> int:
@@ -288,10 +295,14 @@ class RSSDiscordBot:
                         score = self.calculate_ai_regulation_score(article['title'], article['summary'])
                         logging.info(f"AI regulation score {score}: {article['title']}")
                         articles.append(article)
+                        # 投稿対象記事は即座に見たものとしてマーク（重複防止）
+                        self.seen_articles.add(article_id)
                     else:
                         score = self.calculate_ai_regulation_score(article['title'], article['summary'])
                         logging.info(f"Filtered out (score {score}): {article['title']}")
                         self.log_to_markdown(f"🚫 Filtered article (score {score}): {article['title']}", "FILTER")
+                        # フィルターされた記事も見たものとしてマーク
+                        self.seen_articles.add(article_id)
             
             return articles
         
@@ -386,19 +397,25 @@ class RSSDiscordBot:
             articles = self.parse_rss_feed(feed_url)
             
             for article in articles:
-                message = self.format_article_message(article, feed_name, feed_config)
-                
-                if self.send_to_discord(message):
-                    self.seen_articles.add(article['id'])
-                    article_log = f"✅ Sent article from {feed_name}:\nTitle: {article['title']}\nLink: {article.get('link', 'No link')}"
-                    logging.info(f"Sent article: {article['title']}")
-                    self.log_to_markdown(article_log, "ARTICLE")
-                else:
-                    error_log = f"❌ Failed to send article from {feed_name}:\nTitle: {article['title']}"
-                    logging.error(f"Failed to send article: {article['title']}")
-                    self.log_to_markdown(error_log, "ERROR")
-                
-                time.sleep(1)  # Rate limiting
+                # 記事IDが既にseen_articlesに追加されているかチェック
+                if article['id'] in self.seen_articles:
+                    message = self.format_article_message(article, feed_name, feed_config)
+                    
+                    if self.send_to_discord(message):
+                        article_log = f"✅ Sent article from {feed_name}:\nTitle: {article['title']}\nLink: {article.get('link', 'No link')}"
+                        logging.info(f"Sent article: {article['title']}")
+                        self.log_to_markdown(article_log, "ARTICLE")
+                        
+                        # 送信後に即座に保存（個別保存で確実性向上）
+                        self.save_seen_articles()
+                    else:
+                        error_log = f"❌ Failed to send article from {feed_name}:\nTitle: {article['title']}"
+                        logging.error(f"Failed to send article: {article['title']}")
+                        self.log_to_markdown(error_log, "ERROR")
+                        # 送信失敗時はseen_articlesから削除（再試行可能にする）
+                        self.seen_articles.discard(article['id'])
+                    
+                    time.sleep(1)  # Rate limiting
         
         self.save_seen_articles()
         completion_log = f"RSS feed processing completed at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
@@ -412,25 +429,32 @@ class RSSDiscordBot:
     def run_forever(self):
         """Run the bot at XX:00 and XX:30 every 30 minutes"""
         logging.info("Starting RSS Discord Bot with 30-minute schedule (XX:00, XX:30)")
+        last_execution = None
         
         while True:
             try:
                 current_time = datetime.now()
                 current_minute = current_time.minute
+                current_key = f"{current_time.hour}:{current_minute:02d}"
                 
-                # XX:00またはXX:30の0分・30分に実行
-                if current_minute == 0 or current_minute == 30:
+                # XX:00またはXX:30の0分・30分に実行（重複実行防止）
+                if (current_minute == 0 or current_minute == 30) and last_execution != current_key:
                     logging.info(f"Scheduled execution at {current_time.strftime('%H:%M')}")
                     self.process_feeds()
-                    time.sleep(1740)  # 29分待機（次の:00または:30まで）
+                    last_execution = current_key
+                    time.sleep(60)  # 1分待機（同じ時間での再実行を防ぐ）
                 else:
                     # 次の0分または30分まで待機
                     if current_minute < 30:
                         minutes_to_wait = 30 - current_minute
                     else:
                         minutes_to_wait = 60 - current_minute
-                    logging.info(f"Waiting {minutes_to_wait} minutes until next scheduled run (XX:00 or XX:30)")
-                    time.sleep(minutes_to_wait * 60)
+                    
+                    # ログ重複を避けるため、新しいスケジュールでのみログ出力
+                    if last_execution != current_key:
+                        logging.info(f"Waiting {minutes_to_wait} minutes until next scheduled run (XX:00 or XX:30)")
+                    
+                    time.sleep(min(60, minutes_to_wait * 60))  # 最大1分間隔でチェック
             
             except KeyboardInterrupt:
                 logging.info("Bot stopped by user")

@@ -24,8 +24,8 @@ if [ -f "venv/bin/activate" ]; then
     
     # 依存関係をインストール
     echo "Installing dependencies..."
-    python -m pip install --upgrade pip setuptools wheel
-    python -m pip install feedparser requests
+    python3 -m pip install --upgrade pip setuptools wheel
+    python3 -m pip install feedparser requests
 else
     echo "Warning: Virtual environment not found, using system Python..."
     echo "Installing dependencies..."
@@ -42,7 +42,7 @@ fi
 
 # Botをテスト実行（一度だけ）
 echo "Discord RSS Bot をテスト実行します（一度だけ）..."
-python rss_discord_bot.py --once
+python3 rss_discord_bot.py --once
 
 echo "テスト実行完了しました。"
 
