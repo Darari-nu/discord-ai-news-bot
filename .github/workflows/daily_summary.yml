@@ -1,0 +1,74 @@
+name: Daily AI News Summary
+
+on:
+  schedule:
+    - cron: '30 19 * * *' # 毎日 19:30 UTC (= JST 4:30)
+  workflow_dispatch: # 手動実行も可能にする
+
+jobs:
+  summary:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python (for Discord post-processing)
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests
+
+      - name: Install Antigravity CLI (agy)
+        run: |
+          curl -fsSL https://antigravity.google/cli/install.sh | bash
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      - name: Generate Summary using agy
+        id: generate-summary
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          # agy --print を非インタラクティブで実行。
+          # CI環境のため、--dangerously-skip-permissions でツール実行確認を自動承認します。
+          summary_text=$(agy --dangerously-skip-permissions -p "今日のAIニュースまとめを日本語で作成してください。OpenAI、Claude (Anthropic)、Google AI、およびAIガバナンス（法規制や政策など）を重点的に扱い、各ニュースのポイントとリンク（もし検索でわかる場合は代表的な情報源のリンク、なければ概要のみ）を整理した美しいMarkdown形式で出力してください。見出しは『# 今日のAIニュースまとめ』としてください。")
+          
+          # 環境変数へのエスケープ書き込み
+          echo "SUMMARY_OUTPUT<<EOF" >> $GITHUB_ENV
+          echo "$summary_text" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+      - name: Post Summary to Discord Webhook
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: |
+          # Discordのメッセージ上限2000文字の制限を考慮して安全に分割送信
+          python -c '
+          import os, json, requests
+          
+          webhook_url = os.environ.get("DISCORD_WEBHOOK_URL")
+          content = os.environ.get("SUMMARY_OUTPUT", "")
+          
+          if not webhook_url:
+              print("DISCORD_WEBHOOK_URL is not set.")
+              exit(1)
+          if not content:
+              print("SUMMARY_OUTPUT is empty.")
+              exit(1)
+          
+          def send_chunk(text):
+              payload = {"content": text, "username": "AI News Summary Bot"}
+              res = requests.post(webhook_url, json=payload)
+              res.raise_for_status()
+          
+          # 1900文字ごとに分割して送信
+          chunk_size = 1900
+          for i in range(0, len(content), chunk_size):
+              chunk = content[i:i+chunk_size]
+              if chunk.strip():
+                  send_chunk(chunk)
+          '
