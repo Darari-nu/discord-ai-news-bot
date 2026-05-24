@@ -189,14 +189,21 @@ open terminal_log.md
 
 ---
 
-## 🚀 Railway デプロイ成功
+## 🚫 デプロイ状況の正確な記録
 
-### 🎯 **デプロイ情報**
-- **Railway Project**: discord-ai-news-bot
-- **URL**: https://railway.com/project/5948cc3f-64ab-4a0d-a6e6-d38a5e7ff899
-- **Status**: ✅ 24時間稼働中
-- **実行間隔**: 60分（1時間毎）
-- **監視フィード数**: 32フィード
+### 📍 **現在の稼働状況**
+- **Railway**: ❌ 停止済み（または未デプロイ）
+- **Xserver VPS**: 🔒 セキュリティ強化によりClaude外部アクセス不可
+  - IP: 210.131.217.175
+  - User: root  
+  - 稼働状況: 不明（SSH接続制限により確認不可）
+- **ローカル環境**: ✅ 開発・テスト用として動作
+
+### ⚠️ **重要：Claude Assistant制限事項**
+- Xserver VPSへのSSH接続は認証強化により不可
+- Railway CLI未認証状態
+- 本番環境の直接確認・操作は不可
+- デプロイ作業はユーザー自身で実行が必要
 
 ---
 
@@ -269,9 +276,14 @@ echo '{"user":{"token":"xxxx"},"version":1}' > ~/.railway/config.json
 - ✅ ログ機能強化（Markdown対応）
 - ✅ 会話記録機能追加
 - ✅ Claude.md作成
-- ✅ Railway CLI認証問題解決
-- ✅ Railway デプロイ成功（24時間稼働開始）
+- ✅ Xserver VPS セットアップスクリプト作成
+
+### 2025-08-14
+- 🔍 デプロイ状況調査・記録修正
+- ❌ Railway未稼働確認（停止済みまたは未デプロイ）
+- 🔒 Xserver VPS セキュリティ強化によりClaude外部アクセス制限
+- 📝 CLAUDE.md デプロイ状況正確化
 
 ---
 
-*最終更新: 2025-07-19 21:53*
+*最終更新: 2025-08-14*

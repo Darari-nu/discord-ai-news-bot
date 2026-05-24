@@ -23,11 +23,26 @@ log_error() {
     echo -e "${RED}[ERROR]${NC} $1"
 }
 
-# SSH接続情報
-VPS_IP="210.131.217.175"
-VPS_USER="root"
-VPS_PASSWORD="j-33008744444-"
-DISCORD_WEBHOOK="https://discord.com/api/webhooks/1396002981291229324/HZBDfa1QpEp1SgD9QA_iwEHYC5A_DWj8Z3lB5BsBxiC2D8Ex2eQjvNpJdkmr1iqRROur"
+# SSH接続情報（環境変数から読み込み）
+# .envファイルを作成してください：
+# VPS_IP=your_ip_address
+# VPS_USER=your_username
+# VPS_PASSWORD=your_password
+# DISCORD_WEBHOOK_URL=your_webhook_url
+
+# .envファイルから環境変数を読み込み
+if [ -f ".env" ]; then
+    source .env
+else
+    echo "Error: .envファイルが見つかりません"
+    echo "VPS接続情報を.envファイルに設定してください"
+    exit 1
+fi
+
+VPS_IP="${VPS_IP}"
+VPS_USER="${VPS_USER}"
+VPS_PASSWORD="${VPS_PASSWORD}"
+DISCORD_WEBHOOK="${DISCORD_WEBHOOK_URL}"
 
 log_info "=== Xserver VPS Discord RSS Bot セットアップ開始 ==="
 
