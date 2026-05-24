@@ -3706,3 +3706,393 @@ Link: https://arxiv.org/abs/2507.13541
 RSS feed processing completed at 2025-07-22 05:26:36
 ```
 
+## 2026-05-24 16:44:12 - START
+```
+Starting RSS feed processing at 2026-05-24 16:44:12
+```
+
+## 2026-05-24 16:44:12 - FEED
+```
+Processing feed: 🔬 OpenAI News
+URL: https://openai.com/news/rss.xml
+```
+
+## 2026-05-24 16:44:13 - FILTER
+```
+🚫 Filtered article (score 0): How Virgin Atlantic ships faster with Codex
+```
+
+## 2026-05-24 16:44:14 - ERROR
+```
+❌ Failed to send article from 🔬 OpenAI News:
+Title: OpenAI named a Leader in enterprise coding agents by Gartner
+```
+
+## 2026-05-24 16:44:15 - FEED
+```
+Processing feed: 🔬 Anthropic News (Google News)
+URL: https://news.google.com/rss/search?q=Anthropic&hl=en-US&gl=US&ceid=US:en
+```
+
+## 2026-05-24 16:44:15 - FILTER
+```
+🚫 Filtered article (score 0): Anthropic’s Code with Claude showed off coding’s future—whether you like it or not - MIT Technology Review
+```
+
+## 2026-05-24 16:44:15 - FILTER
+```
+🚫 Filtered article (score 0): Zoom’s Anthropic Investment Has Netted the Company $1 Billion - Bloomberg
+```
+
+## 2026-05-24 16:44:15 - FEED
+```
+Processing feed: 🔬 Google Research
+URL: https://research.google/blog/rss/
+```
+
+## 2026-05-24 16:44:16 - FILTER
+```
+🚫 Filtered article (score 0): Empirical Research Assistance (ERA): From Nature publication to catalyzing Computational Discovery
+```
+
+## 2026-05-24 16:44:16 - FILTER
+```
+🚫 Filtered article (score 0): Catalyzing scientific impact through global partnerships and open resources
+```
+
+## 2026-05-24 16:44:16 - FEED
+```
+Processing feed: 🔬 Meta AI
+URL: https://ai.meta.com/blog/rss/
+```
+
+## 2026-05-24 16:44:18 - FEED
+```
+Processing feed: 🌐 VentureBeat AI
+URL: https://venturebeat.com/ai/feed/
+```
+
+## 2026-05-24 16:44:18 - FEED
+```
+Processing feed: 🇺🇸 WIRED – AI (Latest)
+URL: https://www.wired.com/feed/tag/ai/latest/rss
+```
+
+## 2026-05-24 16:44:18 - ERROR
+```
+❌ Failed to send article from 🇺🇸 WIRED – AI (Latest):
+Title: Even If You Hate AI, You Will Use Google AI Search
+```
+
+## 2026-05-24 16:44:20 - ERROR
+```
+❌ Failed to send article from 🇺🇸 WIRED – AI (Latest):
+Title: The Gulf’s AI Boom Has an Undersea Cable Problem
+```
+
+## 2026-05-24 16:44:21 - FEED
+```
+Processing feed: 🇺🇸 The Verge – Artificial Intelligence
+URL: https://www.theverge.com/rss/ai-artificial-intelligence/index.xml
+```
+
+## 2026-05-24 16:44:21 - ERROR
+```
+❌ Failed to send article from 🇺🇸 The Verge – Artificial Intelligence:
+Title: Google’s new anything-to-anything AI model is wild
+```
+
+## 2026-05-24 16:44:23 - ERROR
+```
+❌ Failed to send article from 🇺🇸 The Verge – Artificial Intelligence:
+Title: Google&#8217;s AI search is so broken it can &#8216;disregard&#8217; what you&#8217;re looking for
+```
+
+## 2026-05-24 16:44:24 - FEED
+```
+Processing feed: 🧠 MIT Technology Review
+URL: https://www.technologyreview.com/feed/
+```
+
+## 2026-05-24 16:44:24 - ERROR
+```
+❌ Failed to send article from 🧠 MIT Technology Review:
+Title: The Download: coding’s future, the ‘Steroid Olympics,’ and AI-driven science
+```
+
+## 2026-05-24 16:44:26 - ERROR
+```
+❌ Failed to send article from 🧠 MIT Technology Review:
+Title: Google I/O showed how the path for AI-driven science is shifting
+```
+
+## 2026-05-24 16:44:27 - FEED
+```
+Processing feed: 🇯🇵 ITmedia AI+
+URL: https://rss.itmedia.co.jp/rss/2.0/aiplus.xml
+```
+
+## 2026-05-24 16:44:27 - FILTER
+```
+🚫 Filtered article (score 0): ソースネクストのAI議事録、Microsoft 365 Copilot連携で検索、要約を効率化
+```
+
+## 2026-05-24 16:44:27 - ERROR
+```
+❌ Failed to send article from 🇯🇵 ITmedia AI+:
+Title: 「Gemini」「Claude Code」「Codex」　全社展開・本番実装に役立つ5つのポイント
+```
+
+## 2026-05-24 16:44:28 - FEED
+```
+Processing feed: 🇬🇧 The Guardian – Artificial Intelligence
+URL: https://www.theguardian.com/technology/artificialintelligenceai/rss
+```
+
+## 2026-05-24 16:44:29 - ERROR
+```
+❌ Failed to send article from 🇬🇧 The Guardian – Artificial Intelligence:
+Title: ‘AI washing’: firms are scrambling to rebrand themselves as tech-focused
+```
+
+## 2026-05-24 16:44:31 - ERROR
+```
+❌ Failed to send article from 🇬🇧 The Guardian – Artificial Intelligence:
+Title: I avoid AI tools because thinking is supposed to be hard. It’s what makes us human | Wendy Liu
+```
+
+## 2026-05-24 16:44:32 - FEED
+```
+Processing feed: 🌐 OECD Digital
+URL: https://www.oecd.org/digital/rss.xml
+```
+
+## 2026-05-24 16:44:33 - FEED
+```
+Processing feed: 🏛️ 内閣府
+URL: https://www.cao.go.jp/rss/index.xml
+```
+
+## 2026-05-24 16:44:33 - FEED
+```
+Processing feed: 🏛️ 総務省
+URL: https://www.soumu.go.jp/menu_news/rss/index.xml
+```
+
+## 2026-05-24 16:44:33 - FEED
+```
+Processing feed: 🏛️ 経産省
+URL: https://www.meti.go.jp/rss/index.rdf
+```
+
+## 2026-05-24 16:44:33 - FEED
+```
+Processing feed: 🏛️ デジタル庁
+URL: https://www.digital.go.jp/news/rss.xml
+```
+
+## 2026-05-24 16:44:34 - COMPLETE
+```
+RSS feed processing completed at 2026-05-24 16:44:34
+```
+
+## 2026-05-24 17:13:01 - START
+```
+Starting RSS feed processing at 2026-05-24 17:13:01
+```
+
+## 2026-05-24 17:13:01 - FEED
+```
+Processing feed: 🔬 OpenAI News
+URL: https://openai.com/news/rss.xml
+```
+
+## 2026-05-24 17:13:02 - FILTER
+```
+🚫 Filtered article (score 0): How Virgin Atlantic ships faster with Codex
+```
+
+## 2026-05-24 17:13:03 - ARTICLE
+```
+✅ Sent article from 🔬 OpenAI News:
+Title: OpenAI named a Leader in enterprise coding agents by Gartner
+Link: https://openai.com/index/gartner-2026-agentic-coding-leader
+```
+
+## 2026-05-24 17:13:04 - FEED
+```
+Processing feed: 🔬 Anthropic News (Google News)
+URL: https://news.google.com/rss/search?q=Anthropic&hl=en-US&gl=US&ceid=US:en
+```
+
+## 2026-05-24 17:13:05 - FILTER
+```
+🚫 Filtered article (score 0): Anthropic’s Code with Claude showed off coding’s future—whether you like it or not - MIT Technology Review
+```
+
+## 2026-05-24 17:13:05 - FILTER
+```
+🚫 Filtered article (score 0): Zoom’s Anthropic Investment Has Netted the Company $1 Billion - Bloomberg.com
+```
+
+## 2026-05-24 17:13:05 - FEED
+```
+Processing feed: 🔬 Google Research
+URL: https://research.google/blog/rss/
+```
+
+## 2026-05-24 17:13:06 - FILTER
+```
+🚫 Filtered article (score 0): Empirical Research Assistance (ERA): From Nature publication to catalyzing Computational Discovery
+```
+
+## 2026-05-24 17:13:06 - FILTER
+```
+🚫 Filtered article (score 0): Catalyzing scientific impact through global partnerships and open resources
+```
+
+## 2026-05-24 17:13:06 - FEED
+```
+Processing feed: 🔬 Meta AI
+URL: https://ai.meta.com/blog/rss/
+```
+
+## 2026-05-24 17:13:07 - FEED
+```
+Processing feed: 🌐 VentureBeat AI
+URL: https://venturebeat.com/ai/feed/
+```
+
+## 2026-05-24 17:13:07 - FEED
+```
+Processing feed: 🇺🇸 WIRED – AI (Latest)
+URL: https://www.wired.com/feed/tag/ai/latest/rss
+```
+
+## 2026-05-24 17:13:08 - ARTICLE
+```
+✅ Sent article from 🇺🇸 WIRED – AI (Latest):
+Title: Even If You Hate AI, You Will Use Google AI Search
+Link: https://www.wired.com/story/even-if-you-hate-ai-you-will-use-google-ai-search/
+```
+
+## 2026-05-24 17:13:09 - ARTICLE
+```
+✅ Sent article from 🇺🇸 WIRED – AI (Latest):
+Title: The Gulf’s AI Boom Has an Undersea Cable Problem
+Link: https://www.wired.com/story/the-gulfs-ai-boom-has-an-undersea-cable-problem/
+```
+
+## 2026-05-24 17:13:10 - FEED
+```
+Processing feed: 🇺🇸 The Verge – Artificial Intelligence
+URL: https://www.theverge.com/rss/ai-artificial-intelligence/index.xml
+```
+
+## 2026-05-24 17:13:11 - ARTICLE
+```
+✅ Sent article from 🇺🇸 The Verge – Artificial Intelligence:
+Title: Google’s new anything-to-anything AI model is wild
+Link: https://www.theverge.com/tech/936507/gemini-omni-hands-on-deepfake-ai-video
+```
+
+## 2026-05-24 17:13:12 - ARTICLE
+```
+✅ Sent article from 🇺🇸 The Verge – Artificial Intelligence:
+Title: Google&#8217;s AI search is so broken it can &#8216;disregard&#8217; what you&#8217;re looking for
+Link: https://www.theverge.com/tech/936176/google-ai-overviews-search-disregard
+```
+
+## 2026-05-24 17:13:13 - FEED
+```
+Processing feed: 🧠 MIT Technology Review
+URL: https://www.technologyreview.com/feed/
+```
+
+## 2026-05-24 17:13:14 - ARTICLE
+```
+✅ Sent article from 🧠 MIT Technology Review:
+Title: The Download: coding’s future, the ‘Steroid Olympics,’ and AI-driven science
+Link: https://www.technologyreview.com/2026/05/22/1137845/the-download-coding-future-steroid-olympics-ai-science/
+```
+
+## 2026-05-24 17:13:15 - ARTICLE
+```
+✅ Sent article from 🧠 MIT Technology Review:
+Title: Google I/O showed how the path for AI-driven science is shifting
+Link: https://www.technologyreview.com/2026/05/22/1137813/google-i-o-showed-how-the-path-for-ai-science-is-shifting/
+```
+
+## 2026-05-24 17:13:16 - FEED
+```
+Processing feed: 🇯🇵 ITmedia AI+
+URL: https://rss.itmedia.co.jp/rss/2.0/aiplus.xml
+```
+
+## 2026-05-24 17:13:17 - FILTER
+```
+🚫 Filtered article (score 0): ソースネクストのAI議事録、Microsoft 365 Copilot連携で検索、要約を効率化
+```
+
+## 2026-05-24 17:13:17 - ARTICLE
+```
+✅ Sent article from 🇯🇵 ITmedia AI+:
+Title: 「Gemini」「Claude Code」「Codex」　全社展開・本番実装に役立つ5つのポイント
+Link: https://atmarkit.itmedia.co.jp/ait/articles/2605/24/news007.html
+```
+
+## 2026-05-24 17:13:18 - FEED
+```
+Processing feed: 🇬🇧 The Guardian – Artificial Intelligence
+URL: https://www.theguardian.com/technology/artificialintelligenceai/rss
+```
+
+## 2026-05-24 17:13:19 - ARTICLE
+```
+✅ Sent article from 🇬🇧 The Guardian – Artificial Intelligence:
+Title: ‘AI washing’: firms are scrambling to rebrand themselves as tech-focused
+Link: https://www.theguardian.com/technology/2026/may/24/ai-washing-pr-firms-scrambling-rebrand
+```
+
+## 2026-05-24 17:13:20 - ARTICLE
+```
+✅ Sent article from 🇬🇧 The Guardian – Artificial Intelligence:
+Title: I avoid AI tools because thinking is supposed to be hard. It’s what makes us human | Wendy Liu
+Link: https://www.theguardian.com/commentisfree/2026/may/24/ai-tools-thinking-human-hard-coding-writing-technology
+```
+
+## 2026-05-24 17:13:21 - FEED
+```
+Processing feed: 🌐 OECD Digital
+URL: https://www.oecd.org/digital/rss.xml
+```
+
+## 2026-05-24 17:13:22 - FEED
+```
+Processing feed: 🏛️ 内閣府
+URL: https://www.cao.go.jp/rss/index.xml
+```
+
+## 2026-05-24 17:13:22 - FEED
+```
+Processing feed: 🏛️ 総務省
+URL: https://www.soumu.go.jp/menu_news/rss/index.xml
+```
+
+## 2026-05-24 17:13:22 - FEED
+```
+Processing feed: 🏛️ 経産省
+URL: https://www.meti.go.jp/rss/index.rdf
+```
+
+## 2026-05-24 17:13:22 - FEED
+```
+Processing feed: 🏛️ デジタル庁
+URL: https://www.digital.go.jp/news/rss.xml
+```
+
+## 2026-05-24 17:13:22 - COMPLETE
+```
+RSS feed processing completed at 2026-05-24 17:13:22
+```
+
