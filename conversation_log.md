@@ -25,7 +25,7 @@ AI法規制ニュースを自動収集してDiscordに投稿するRSS Botの開�
 1. Discord Webhook URL取得（チャンネル設定→連携サービス→ウェブフック）
 2. URLをここに貼り付け
 
-**ユーザー**: https://discord.com/api/webhooks/1396002981291229324/HZBDfa1QpEp1SgD9QA_iwEHYC5A_DWj8Z3lB5BsBxiC2D8Ex2eQjvNpJdkmr1iqRROur
+**ユーザー**: [REDACTED - Webhook URL removed]
 **Claude**: Webhook URL設定完了。GIGAZINE（日本語）とTechCrunch（英語・翻訳付き）で初期設定、テスト実行成功！
 
 ### 仕組み理解フェーズ
